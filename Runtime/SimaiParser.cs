@@ -10,6 +10,42 @@ namespace MajSimai
     public partial class SimaiParser
     {
         public static SimaiParser Shared { get; } = new SimaiParser();
+        static ReadOnlyMemory<string> SIMAI_METADATA_MARKUP = new string[]
+        {
+            "title",
+            "artist",
+            "first",
+            "des",
+            "des_1",
+            "des_2",
+            "des_3",
+            "des_4",
+            "des_5",
+            "des_6",
+            "des_7",
+            "lv_1",
+            "lv_2",
+            "lv_3",
+            "lv_4",
+            "lv_5",
+            "lv_6",
+            "lv_7",
+            "inote_1",
+            "inote_2",
+            "inote_3",
+            "inote_4",
+            "inote_5",
+            "inote_6",
+            "inote_7",
+        };
+
+        const int SIMAI_TITLE_MARKUP_INDEX = 0;
+        const int SIMAI_ARTIST_MARKUP_INDEX = 1;
+        const int SIMAI_FIRST_MARKUP_INDEX = 2;
+        const int SIMAI_DES_MARKUP_INDEX = 3;
+        const int SIMAI_DES_SEG_MARKUP_START_INDEX = 4;
+        const int SIMAI_LEVEL_SEG_MARKUP_START_INDEX = 11;
+        const int SIMAI_FUMEN_SEG_MARKUP_START_INDEX = 18;
         public async Task<SimaiFile> ParseAsync(string filePath)
         {
             if (!File.Exists(filePath))
@@ -340,13 +376,44 @@ namespace MajSimai
                 }
             });
         }
-        private string GetValue(string varline) => varline.Substring(varline.IndexOf("=") + 1).Trim();
+        void ReadMetadata(ReadOnlySpan<char> simaiContent)
+        {
+            var title = "";
+            var artist = "";
+            var designer = "";
+            var first = 0f;
+            var designers = new string[7];
+            var fumens = new string[7];
+            var levels = new string[7];
+
+            Span<int> controlIndexs = stackalloc int[0];
+        }
+        private string GetValue(string varline) => varline.Substring(varline.IndexOf('=') + 1).Trim();
         private static bool IsNote(char noteText)
         {
-            var SlideMarks = "1234567890ABCDE"; ///ABCDE for touch
-            foreach (var mark in SlideMarks)
+            Span<char> slideMarks = stackalloc char[15]
+            {
+                '1',
+                '2',
+                '3',
+                '4',
+                '5',
+                '6',
+                '7',
+                '8',
+                '9',
+                '0',
+                'A',
+                'B',
+                'C',
+                'D',
+                'E',
+            }; ///ABCDE for touch
+            foreach (var mark in slideMarks)
+            {
                 if (noteText == mark)
                     return true;
+            }
             return false;
         }
         private static async Task<byte[]> ComputeHashAsync(byte[] data)
