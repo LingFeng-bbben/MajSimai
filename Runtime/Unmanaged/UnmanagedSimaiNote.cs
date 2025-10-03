@@ -27,6 +27,7 @@ internal unsafe struct UnmanagedSimaiNote
     public bool isSlideNoHead;
     public bool isMine;
     public bool isMineSlide;
+    public bool usingSV;
     public int rawContentLen;
 
     public char* rawContent;

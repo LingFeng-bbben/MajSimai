@@ -10,6 +10,7 @@ namespace MajSimai
         public double Timing { get; set; } = 0;
         public float Bpm { get; set; } = -1;
         public float HSpeed { get; set; } = 1f;
+        public float SVeloc { get; set; } = 1f;
         public string RawContent { get; } = string.Empty;
         public int RawTextPositionX { get; }
         public int RawTextPositionY { get; }
@@ -18,7 +19,7 @@ namespace MajSimai
         public bool IsEmpty => Notes.Length == 0;
 
         public SimaiTimingPoint(double timing, SimaiNote[]? notes, ReadOnlySpan<char> rawContent, int textPosX = 0, int textPosY = 0, float bpm = 0f,
-            float hspeed = 1f, int rawTextPosition = 0)
+            float hspeed = 1f, float sveloc = 1f, int rawTextPosition = 0)
         {
             Timing = timing;
             RawTextPositionX = textPosX;
@@ -57,6 +58,7 @@ namespace MajSimai
             }
             Bpm = bpm;
             HSpeed = hspeed;
+            SVeloc = sveloc;
             if (notes != null)
             {
                 Notes = notes;
@@ -85,6 +87,7 @@ namespace MajSimai
                 timing = Timing,
                 bpm = Bpm,
                 hSpeed = HSpeed,
+                sVeloc = SVeloc,
                 rawTextPositionX = RawTextPositionX,
                 rawTextPositionY = RawTextPositionY,
                 rawTextPosition = RawTextPosition,

@@ -646,9 +646,11 @@ namespace MajSimai
 
             float bpm = 0;
             var curHSpeed = 1f;
+            var curSVeloc = 1f;
             double time = 0; //in seconds
             var beats = 4f; //{4}
             var haveNote = false;
+            var haveSV = false;
             //var noteTemp = "";
 
             int Ycount = 1, Xcount = 0;
@@ -795,7 +797,7 @@ namespace MajSimai
                                 //Console.WriteLine("BEAT" + beats);
                             }
                             continue;
-                        case '<':// Get HS: <HS*1.0>
+                        case '<':// Get HS: <HS*1.0> / Get SV: <SV*0.5>
                             {
                                 if (haveNote)
                                 {
@@ -840,21 +842,30 @@ namespace MajSimai
                                             buffer[bufferIndex++] = currentChar;
                                             Xcount++;
                                         }
-                                        var hsContent = buffer.AsSpan(0, bufferIndex);
-                                        var isInvalid = hsContent.IsEmpty ||
-                                                        hsContent.Length < 4 ||
-                                                        hsContent[0] != 'H' ||
-                                                        hsContent[1] != 'S' ||
+                                        var Content = buffer.AsSpan(0, bufferIndex);
+                                        var isInvalid = Content.IsEmpty ||
+                                                        Content.Length < 4 ||
                                                         tagIndex == -1;
-                                        if (isInvalid) // min: HS*1
+                                        if (!isInvalid) // min: HS*1
                                         {
-                                            throw new InvalidSimaiSyntaxException(Ycount, Xcount, hsContent.ToString(), "Unexpected HS declaration syntax");
+                                            var Value = Content[(tagIndex + 1)..]; // get "1.0" from HS*1.0
+                                            if (Content[0..tagIndex].SequenceEqual("HS"))
+                                            {
+                                                if (!float.TryParse(Value, out curHSpeed))
+                                                {
+                                                    throw new InvalidSimaiMarkupException(Ycount, Xcount, Content.ToString(), "HSpeed value must be a number");
+                                                }
+                                            }
+                                            else if (Content[0..tagIndex].SequenceEqual("SV"))
+                                            {
+                                                if (float.TryParse(Value, out curSVeloc))
+                                                    haveSV = true;
+                                                else throw new InvalidSimaiMarkupException(Ycount, Xcount, Content.ToString(), "SVeloc value must be a number");
+                                            }
+                                            else throw new InvalidSimaiSyntaxException(Ycount, Xcount, Content.ToString(), $"Unexpected HS / SV declaration syntax \"{Content[0..tagIndex].ToString()}\", is it \"HS\" or \"SV\"?");
                                         }
-                                        var hsValue = hsContent[(tagIndex + 1)..]; // get "1.0" from HS*1.0
-                                        if (!float.TryParse(hsValue, out curHSpeed))
-                                        {
-                                            throw new InvalidSimaiMarkupException(Ycount, Xcount, hsContent.ToString(), "HSpeed value must be a number");
-                                        }
+                                        else throw new InvalidSimaiSyntaxException(Ycount, Xcount, Content.ToString(), "Unexpected HS / SV declaration syntax");
+
                                         //Console.WriteLine("HS" + curHSpeed);
                                     }
                                     finally
@@ -879,7 +890,7 @@ namespace MajSimai
 
                     if (fumen[i] == ',')
                     {
-                        if (haveNote)
+                        if (haveNote || haveSV)
                         {
                             var noteContent = (ReadOnlySpan<char>)(noteContentBuffer.AsSpan(0, noteContentBufIndex));
                             var fakeEachTagCount = noteContent.Count('`');
@@ -904,7 +915,8 @@ namespace MajSimai
                                                                             Xcount,
                                                                             Ycount,
                                                                             bpm,
-                                                                            curHSpeed);
+                                                                            curHSpeed,
+                                                                            curSVeloc);
                                         BufferHelper.EnsureBufferLength(noteRawTimingBufIndex + 1, ref noteRawTimingBuffer);
                                         noteRawTimingBuffer[noteRawTimingBufIndex++] = rawTp;
                                         fakeTime += timeInterval;
@@ -922,7 +934,8 @@ namespace MajSimai
                                                                     Xcount,
                                                                     Ycount,
                                                                     bpm,
-                                                                    curHSpeed);
+                                                                    curHSpeed,
+                                                                    curSVeloc);
                                 BufferHelper.EnsureBufferLength(noteRawTimingBufIndex + 1, ref noteRawTimingBuffer);
                                 noteRawTimingBuffer[noteRawTimingBufIndex++] = rawTp;
                             }
@@ -932,7 +945,7 @@ namespace MajSimai
                             noteContentBufIndex = 0;
                         }
                         BufferHelper.EnsureBufferLength(commaTimingBufIndex + 1, ref commaTimingBuffer);
-                        commaTimingBuffer[commaTimingBufIndex++] = new SimaiTimingPoint(time, null, string.Empty, Xcount, Ycount, bpm, 1, i);
+                        commaTimingBuffer[commaTimingBufIndex++] = new SimaiTimingPoint(time, null, string.Empty, Xcount, Ycount, bpm, 1, curSVeloc, i);
 
                         time += 1d / (bpm / 60d) * 4d / beats;
                         //Console.WriteLine(time);

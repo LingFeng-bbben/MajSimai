@@ -10,13 +10,14 @@ namespace MajSimai
     {
         public double Timing { get; }
         public float Bpm { get; }
-        public float HSpeed { get; } 
+        public float HSpeed { get; }
+        public float SVeloc { get; }
         public string RawContent { get; }
         public int RawTextPositionX { get; }
         public int RawTextPositionY { get; }
 
         public SimaiRawTimingPoint(double timing, ReadOnlySpan<char> rawContent, int textPosX = 0, int textPosY = 0, float bpm = 0f,
-            float hspeed = 1f)
+            float hspeed = 1f, float sveloc = 1f)
         {
             Timing = timing;
             RawTextPositionX = textPosX;
@@ -54,12 +55,13 @@ namespace MajSimai
             }
             Bpm = bpm;
             HSpeed = hspeed;
+            SVeloc = sveloc;
         }
         public SimaiTimingPoint Parse()
         {
             var notes = SimaiNoteParser.GetNotes(Timing, Bpm, RawContent);
 
-            return new SimaiTimingPoint(Timing, notes, RawContent, RawTextPositionX, RawTextPositionY, Bpm, HSpeed);
+            return new SimaiTimingPoint(Timing, notes, RawContent, RawTextPositionX, RawTextPositionY, Bpm, HSpeed, SVeloc);
         }
         public Task<SimaiTimingPoint> ParseAsync()
         {

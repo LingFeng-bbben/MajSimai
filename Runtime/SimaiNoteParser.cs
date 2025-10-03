@@ -277,6 +277,9 @@ namespace MajSimai
             simaiNote.IsMine = detectResult.IsMine;
             simaiNote.IsMineSlide = detectResult.IsMineSlide;
 
+            //UsingSV
+            simaiNote.UsingSV = detectResult.UsingSV;
+
             simaiNote.RawContent = new string(noteTextCopy.Trim());
             outSimaiNote = simaiNote;
             return true;
@@ -560,6 +563,7 @@ namespace MajSimai
                 public readonly bool IsFakeRotate;          // $$
                 public readonly bool IsMine;                // m
                 public readonly bool IsMineSlide;           // m
+                public readonly bool UsingSV;               // c
 
                 public readonly Span<char> NoteContent;
 
@@ -576,6 +580,7 @@ namespace MajSimai
                                 bool isFakeRotate,
                                 bool isMine,
                                 bool isMineSlide,
+                                bool usingSV,
                                 Span<char> noteContent)
                 {
                     IsTouchNote = isTouchNote;
@@ -592,6 +597,7 @@ namespace MajSimai
                     IsMine = isMine;
                     IsMineSlide = isMineSlide;
                     NoteContent = noteContent;
+                    UsingSV = usingSV;
                 }
 
                 public static NoteFlag Detect(zString noteContent, Span<char> dst)
@@ -614,6 +620,7 @@ namespace MajSimai
                     var isFakeRotate = false;
                     var isMine = false;
                     var isMineSlide = false;
+                    var usingSV = true;
 
                     var forceStarTagCount = 0;
                     var j = 0;
@@ -647,6 +654,9 @@ namespace MajSimai
                                 break;
                             case 'x':
                                 isEx = true;
+                                continue;
+                            case 'c':
+                                usingSV = false;
                                 continue;
                             case 'h':
                                 isHold = true;
@@ -726,6 +736,7 @@ namespace MajSimai
                                         isFakeRotate,
                                         isMine,
                                         isMineSlide,
+                                        usingSV,
                                         dst.Slice(0, j));
                 }
             }
