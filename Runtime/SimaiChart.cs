@@ -8,14 +8,20 @@ namespace MajSimai
 {
     public class SimaiChart
     {
-        public string Level { get; set; }
-        public string Designer { get; set; }
-        public string Fumen { get; set; }
+        public string Level { get; }
+        public string Designer { get; }
         public bool IsEmpty
         {
             get
             {
                 return _isEmpty;
+            }
+        }
+        public string Fumen
+        {
+            get
+            {
+                return _fumen;
             }
         }
         public ReadOnlySpan<SimaiTimingPoint> NoteTimings
@@ -34,7 +40,9 @@ namespace MajSimai
         }
         public readonly static SimaiChart Empty = new SimaiChart();
 
+
         readonly bool _isEmpty;
+        readonly string _fumen;
         readonly SimaiTimingPoint[] _noteTimings;
         readonly SimaiTimingPoint[] _commaTimings;
         public SimaiChart(string level, string designer, string fumen,
@@ -101,14 +109,14 @@ namespace MajSimai
             {
                 ArrayPool<SimaiTimingPoint>.Shared.Return(buffer);
             }
-            Fumen = fumen;
+            _fumen = fumen;
             _isEmpty = _noteTimings.Length == 0;
         }
         SimaiChart()
         {
             Level = string.Empty;
             Designer = string.Empty;
-            Fumen = string.Empty;
+            _fumen = string.Empty;
             _noteTimings = Array.Empty<SimaiTimingPoint>();
             _commaTimings = Array.Empty<SimaiTimingPoint>();
             _isEmpty = true;
