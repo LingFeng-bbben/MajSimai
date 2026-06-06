@@ -11,6 +11,7 @@ namespace MajSimai
     {
         public string Title { get; set; }
         public string Artist { get; set; }
+        public string FinalDesigner { get; set; }
         public float Offset { get; set; }
         public SimaiChart[] Charts
         {
@@ -35,10 +36,13 @@ namespace MajSimai
                          string artist, 
                          float offset,
                          string hash,
-                         IEnumerable<SimaiChart>? levels, IEnumerable<SimaiCommand>? commands)
+                         IEnumerable<SimaiChart>? levels, 
+                         IEnumerable<SimaiCommand>? commands,
+                         string finalDesigner = "")
         {
             Title = title ?? string.Empty;
             Artist = artist ?? string.Empty;
+            FinalDesigner = finalDesigner ?? string.Empty;
             Offset = offset;
             Hash = hash ?? string.Empty;
 
@@ -85,6 +89,7 @@ namespace MajSimai
         {
             var titlePtr = (char*)null;
             var artistPtr = (char*)null;
+            var finalDesignerPtr = (char*)null;
             var chartArray = (MajSimai.Unmanaged.UnmanagedSimaiChart*)Marshal.AllocHGlobal(sizeof(MajSimai.Unmanaged.UnmanagedSimaiChart) * 7);
             var commandArray = (MajSimai.Unmanaged.UnmanagedSimaiCommand*)null;
 
@@ -95,6 +100,10 @@ namespace MajSimai
             if (!string.IsNullOrEmpty(Artist))
             {
                 artistPtr = (char*)Marshal.StringToHGlobalAnsi(Artist);
+            }
+            if (!string.IsNullOrEmpty(FinalDesigner))
+            {
+                finalDesignerPtr = (char*)Marshal.StringToHGlobalAnsi(FinalDesigner);
             }
             for (var i = 0; i < 7; i++)
             {
@@ -116,6 +125,9 @@ namespace MajSimai
 
                 artist = artistPtr,
                 artistLen = Artist.Length,
+
+                finalDesigner = finalDesignerPtr,
+                finalDesignerLen = FinalDesigner.Length,
 
                 offset = Offset,
 

@@ -11,6 +11,7 @@ namespace MajSimai
     {
         public string Title { get; }
         public string Artist { get; }
+        public string FinalDesigner { get; }
         public float Offset { get; }
         public ReadOnlySpan<string> Designers
         {
@@ -56,7 +57,8 @@ namespace MajSimai
                              IEnumerable<string>? levels,
                              IEnumerable<string>? fumens,
                              IEnumerable<SimaiCommand>? commands,
-                             string hash)
+                             string hash,
+                             string finalDesigner = "")
         {
             if(hash is null)
             {
@@ -68,6 +70,7 @@ namespace MajSimai
             }
             Title = title;
             Artist = artist;
+            FinalDesigner = finalDesigner;
             Offset = offset;
             _designers = new string[7];
             _levels = new string[7];
@@ -123,12 +126,13 @@ namespace MajSimai
                 ArrayPool<SimaiCommand>.Shared.Return(buffer);
             }
         }
-        public SimaiMetadata(string title, string artist, float offset,
+        public SimaiMetadata(string title, string artist, float offset, 
                              ReadOnlySpan<string> designers,
                              ReadOnlySpan<string> levels,
                              ReadOnlySpan<string> fumens,
                              ReadOnlySpan<SimaiCommand> commands,
-                             string hash)
+                             string hash,
+                             string finalDesigner = "")
         {
             if (hash is null)
             {
@@ -140,6 +144,7 @@ namespace MajSimai
             }
             Title = title;
             Artist = artist;
+            FinalDesigner = finalDesigner;
             Offset = offset;
             _designers = new string[7];
             _levels = new string[7];

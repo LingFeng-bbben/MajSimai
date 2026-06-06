@@ -14,6 +14,7 @@ internal unsafe struct UnmanagedSimaiTimingPoint
     public double timing;
     public float bpm;
     public float hSpeed;
+    public float sVeloc;
     public int rawTextPositionX;
     public int rawTextPositionY;
     public int rawTextPosition;

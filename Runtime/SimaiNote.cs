@@ -17,6 +17,7 @@ namespace MajSimai
         public bool IsSlideNoHead { get; set; }
         public bool IsMine { get; set; } //炸弹音符
         public bool IsMineSlide { get; set; }
+        public bool UsingSV { get; set; }
 
         public string RawContent { get; set; } //used for star explain
 
@@ -49,6 +50,7 @@ namespace MajSimai
                 isEx = IsEx,
                 isMine = IsMine,
                 isMineSlide = IsMineSlide,
+                usingSV = UsingSV,
                 isSlideNoHead = IsSlideNoHead,
                 touchArea = TouchArea,
 

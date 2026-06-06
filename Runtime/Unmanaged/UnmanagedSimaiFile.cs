@@ -12,12 +12,14 @@ internal unsafe struct UnmanagedSimaiFile
 {
     public int titleLen;
     public int artistLen;
+    public int finalDesignerLen;
     public float offset;
     public int chartsLen;
     public int commandsLen;
 
     public char* title;
     public char* artist;
+    public char* finalDesigner;
     public UnmanagedSimaiChart* charts;
     public UnmanagedSimaiCommand* commands;
 
@@ -25,6 +27,7 @@ internal unsafe struct UnmanagedSimaiFile
     {
         Marshal.FreeHGlobal((nint)title);
         Marshal.FreeHGlobal((nint)artist);
+        Marshal.FreeHGlobal((nint)finalDesigner);
         if(charts is not null)
         {
             for (var i = 0; i < chartsLen; i++)
@@ -46,8 +49,10 @@ internal unsafe struct UnmanagedSimaiFile
 
         title = null; 
         artist = null;
+        finalDesigner = null;
         titleLen = 0;
         artistLen = 0;
+        finalDesignerLen = 0;
         chartsLen = 0;
         commandsLen = 0;
     }
