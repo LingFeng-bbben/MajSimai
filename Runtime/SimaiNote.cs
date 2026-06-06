@@ -19,7 +19,7 @@ namespace MajSimai
         public bool IsMineSlide { get; set; }
         public bool UsingSV { get; set; }
 
-        public string RawContent { get; set; } //used for star explain
+        public string RawContent { get; set; } = ""; //used for star explain
 
         public double SlideStartTime { get; set; }
         public double SlideTime { get; set; }

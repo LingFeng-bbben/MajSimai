@@ -379,32 +379,21 @@ namespace MajSimai
                                     i++;
                                     for (; i < lineCount; i++)
                                     {
-                                        var isEOF = false;
                                         range = ranges[i];
                                         maidataTxt = content[range].Trim();
                                         if (!maidataTxt.IsEmpty)
                                         {
                                             if (maidataTxt[0] == '&')
                                             {
-                                                isEOF = true;
                                                 i--;
                                                 break;
                                             }
                                             for (var i2 = 0; i2 < maidataTxt.Length; i2++)
                                             {
                                                 ref readonly var current = ref maidataTxt[i2];
-                                                //if (current == 'E')
-                                                //{
-                                                //    isEOF = true;
-                                                //    break;
-                                                //}
                                                 BufferHelper.EnsureBufferLength(bufferIndex + 1, ref buffer);
                                                 buffer[bufferIndex++] = current;
                                             }
-                                            //if (isEOF)
-                                            //{
-                                            //    break;
-                                            //}
                                         }
 
                                         BufferHelper.EnsureBufferLength(bufferIndex + 1, ref buffer);
@@ -421,17 +410,16 @@ namespace MajSimai
                             break;
                     }
                 }
-                //if (!string.IsNullOrEmpty(designer))
-                //{
-                //    for (var j = 0; j < 7; j++)
-                //    {
-                //        ref var d = ref designers[j];
-                //        if (string.IsNullOrEmpty(d))
-                //        {
-                //            d = designer;
-                //        }
-                //    }
-                //}
+                if (string.IsNullOrEmpty(finalDesigner))
+                {
+                    for (var j = 0; j < 7; j++)
+                    {
+                        if (!string.IsNullOrEmpty(designers[j]))
+                        {
+                            finalDesigner = designers[j];
+                        }
+                    }
+                }
                 var encoding = Encoding.UTF8;
                 var byteCount = encoding.GetByteCount(content);
                 var bytes = new byte[byteCount];
@@ -592,8 +580,6 @@ namespace MajSimai
             double time = 0; //in seconds
             var beats = 4f; //{4}
             var haveNote = false;
-            var haveSV = false;
-            //var noteTemp = "";
 
             int Ycount = 1, Xcount = 0;
 
@@ -834,9 +820,10 @@ namespace MajSimai
                                             }
                                             else if (Content[0..tagIndex].SequenceEqual("SV"))
                                             {
-                                                if (float.TryParse(Value, out curSVeloc))
-                                                    haveSV = true;
-                                                else throw new InvalidSimaiMarkupException(Ycount, Xcount, Content.ToString(), "SVeloc value must be a number");
+                                                if (!float.TryParse(Value, out curSVeloc))
+                                                {
+                                                    throw new InvalidSimaiMarkupException(Ycount, Xcount, Content.ToString(), "SVeloc value must be a number");
+                                                }
                                             }
                                             else throw new InvalidSimaiSyntaxException(Ycount, Xcount, Content.ToString(), $"Unexpected HS / SV declaration syntax \"{Content[0..tagIndex].ToString()}\", is it \"HS\" or \"SV\"?");
                                         }
