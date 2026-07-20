@@ -138,10 +138,6 @@ namespace MajSimai
             {
                 throw new ArgumentNullException(nameof(hash));
             }
-            if (hash.Length == 0)
-            {
-                throw new ArgumentException(nameof(hash));
-            }
             Title = title;
             Artist = artist;
             FinalDesigner = finalDesigner;
