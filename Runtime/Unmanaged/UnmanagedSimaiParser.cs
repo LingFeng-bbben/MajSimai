@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,10 +10,10 @@ using System.Threading.Tasks;
 namespace MajSimai.Unmanaged;
 public unsafe class UnmanagedSimaiParser
 {
-    [UnmanagedCallersOnly(EntryPoint = "MajSimai_Parse")]
-    public static void Parse(char* contentAnsi, int contentAnsiLen, UnmanagedSimaiParseResult* result)
+    [UnmanagedCallersOnly(EntryPoint = "MajSimai_Parse", CallConvs = [typeof(CallConvCdecl)])]
+    public static void Parse(char* contentPtr, int contentLen, UnmanagedSimaiParseResult* result)
     {
-        var content = Marshal.PtrToStringAnsi((nint)contentAnsi, contentAnsiLen);
+        var content = Marshal.PtrToStringAnsi((nint)contentPtr, contentLen);
         if (string.IsNullOrEmpty(content))
         {
             *result = new()
@@ -41,15 +42,33 @@ public unsafe class UnmanagedSimaiParser
             {
                 errorMsgPtr = (char*)Marshal.StringToHGlobalAnsi(errorMsg);
             }
+            var eLine = -1;
+            var eColumn = -1;
+            var eContentPtr = (char*)null;
+            var eContentLen = 0;
+            if(e is InvalidSimaiMarkupException mE)
+            {
+                eLine = mE.Line;
+                eColumn = mE.Column;
+                if(!string.IsNullOrEmpty(mE.Content))
+                {
+                    eContentPtr = (char*)Marshal.StringToHGlobalAnsi(mE.Content);
+                    eContentLen = mE.Content.Length;
+                }
+            }
             *result = new()
             {
                 code = UnmanagedSimaiParseResult.CODE_INTERNAL_ERROR,
                 errorMsgAnsi = errorMsgPtr,
-                errorMsgLen = errorMsg.Length
+                errorMsgLen = errorMsg.Length,
+                errorAtLine = eLine,
+                errorAtColumn = eColumn,
+                errorContentAnsi = eContentPtr,
+                errorContentLen = eContentLen,
             };
         }
     }
-    [UnmanagedCallersOnly(EntryPoint = "MajSimai_Free")]
+    [UnmanagedCallersOnly(EntryPoint = "MajSimai_Free", CallConvs = [typeof(CallConvCdecl)])]
     public static bool Free(UnmanagedSimaiParseResult* ptr)
     {
         try
@@ -66,7 +85,7 @@ public unsafe class UnmanagedSimaiParser
             return false;
         }
     }
-    [UnmanagedCallersOnly(EntryPoint = "MajSimai_FreeHGlobal")]
+    [UnmanagedCallersOnly(EntryPoint = "MajSimai_FreeHGlobal", CallConvs = [typeof(CallConvCdecl)])]
     public static bool Free(nint ptr)
     {
         try
